@@ -1,0 +1,8 @@
+# SmartObject
+
+## Feature list
+1. Child objects
+
+## About Child objects
+Each child object should be a SmartObject.
+Each child object should contain a reference counter which indicates how much other are parents for this object. When some child object being is added to a new list its reference counter should be increased. When some child object is being removed from some parent object's list its reference counter should be decreased. When the reference counter of the child object reaches 0, this child object should be released.
