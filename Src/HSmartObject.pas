@@ -1,8 +1,11 @@
 unit HSmartObject;
 
+{$Define HSmartObjectDebugOutputEnabled}
+
 interface
 
 uses
+  SysUtils,
   syncobjs,
   gset, gutil;
 
@@ -17,12 +20,20 @@ type
     FChildren: TSmartObjectSet;
     FReferenceCount: Integer;
     FReferenceCountLocker: TCriticalSection;
+    FDebugName: ansistring;
+    procedure ToDebugOutput(const s: string);
+    procedure DereferenceChildren;
   public
-    constructor Create;
     property Children: TSmartObjectSet read FChildren;
+    property ReferenceCount: Integer read FReferenceCount;
+    property DebugName: string read FDebugName write FDebugName;
+      // constructor
+    constructor Create;
     procedure AddChild(const aObject: TSmartObject);
     procedure RemoveChild(const aObject: TSmartObject);
     procedure ChangeReferenceCount(const aDelta: Integer);
+    function ToDebugString: ansistring;
+      // destructor
     destructor Destroy; override;
   end;
 
@@ -57,23 +68,61 @@ var
 
 { TSmartObject }
 
+procedure TSmartObject.ToDebugOutput(const s: string);
+begin
+  {$IfDef HSmartObjectDebugOutputEnabled}
+  WriteLN('TSmartObject: ', s);
+  {$EndIf}
+end;
+
+procedure TSmartObject.DereferenceChildren;
+var
+  i: TSmartObjectSet.TIterator;
+  current: TSmartObject;
+begin
+  i := Children.Min;
+  if
+    i <> nil
+  then
+  repeat
+    current := i.Data;
+    current.ChangeReferenceCount(-1);
+    if
+      0 = current.ReferenceCount
+    then
+      current.Free;
+  until not i.Next;
+end;
+
 constructor TSmartObject.Create;
 begin
   inherited Create;
   FChildren := TSmartObjectSet.Create;
   FReferenceCount := 0;
   FReferenceCountLocker := TCriticalSection.Create;
+  FDebugName := '';
   GlobalSmartObjectSet.Insert(self);
 end;
 
 procedure TSmartObject.AddChild(const aObject: TSmartObject);
 begin
-
+  Children.Insert(aObject);
+  aObject.ChangeReferenceCount(1);
 end;
 
 procedure TSmartObject.RemoveChild(const aObject: TSmartObject);
 begin
-
+  if
+    FChildren.Find(aObject) <> nil
+  then
+  begin
+    FChildren.Delete(aObject);
+    aObject.ChangeReferenceCount(-1);
+    if
+      0 = aObject.ReferenceCount
+    then
+      aObject.Free;
+  end;
 end;
 
 procedure TSmartObject.ChangeReferenceCount(const aDelta: Integer);
@@ -83,10 +132,22 @@ begin
   FReferenceCountLocker.Leave;
 end;
 
+function TSmartObject.ToDebugString: ansistring;
+begin
+  if
+    self <> nil
+  then
+    result := ClassName + ' "' + DebugName + '"' + ' ref.cnt: ' + IntToStr(ReferenceCount)
+  else
+    result := 'nil instance';
+end;
+
 destructor TSmartObject.Destroy;
 begin
-  FReferenceCountLocker.Free;
   GlobalSmartObjectSet.Delete(self);
+  FReferenceCountLocker.Free;
+  DereferenceChildren;
+  Children.Free;
   inherited Destroy;
 end;
 
@@ -110,13 +171,13 @@ var
   i: TSmartObjectSet.TIterator;
   o: TSmartObject;
 begin
-  result := '';
+  result := 'Smart object list (' + IntToStr(self.Size) + ' items total):' + LineEnding;
   i := Min;
   if i <> nil then
   begin
     repeat
       o := i.Data;
-      result += o.ClassName + LineEnding;
+      result += o.ToDebugString + LineEnding;
     until not i.Next;
     i.Free;
   end;
@@ -125,14 +186,14 @@ end;
 procedure TSmartObjectSet.Insert(const aObject: TSmartObject);
 begin
   FAddRemoveLock.Enter;
-  self.Insert(aObject);
+  inherited Insert(aObject);
   FAddRemoveLock.Leave;
 end;
 
 procedure TSmartObjectSet.Delete(const aObject: TSmartObject);
 begin
   FAddRemoveLock.Enter;
-  self.Delete(aObject);
+  inherited Delete(aObject);
   FAddRemoveLock.Leave;
 end;
 
@@ -148,7 +209,7 @@ begin
 end;
 
 initialization
-  GlobalSmartObjectSet := TSmartObjectSet.Create;
+  GlobalSmartObjectSet := TSmartObjectSet.Create();
 finalization
   GlobalSmartObjectSet.Free;
 end.
