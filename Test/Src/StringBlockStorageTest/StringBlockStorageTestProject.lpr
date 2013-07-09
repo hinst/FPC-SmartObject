@@ -21,7 +21,12 @@ begin
   s.Append('.grape.');
   s.Append('.grape.');
   s.Append('.BANANA.');
-  WriteLN(s.ToString);
+  s.Append('11');
+  s.Append('22');
+  s.Append('33');
+  s.Append('44');
+  WriteLN(s.ToString(''));
+  WriteLN(s.ToString('-'));
   s.Free;
 end.
 

@@ -32,12 +32,13 @@ type
     function CreateNewStorageBlock: PStringStorageBlock;
     function CreateNewStorageBlock(const s: string): PStringStorageBlock;
     procedure UpdateCounters(const s: string);
+    procedure MoveString(var p: PChar; const s: string);
   public
     property Head: PStringStorageBlock read FHead;
     property Tail: PStringStorageBlock read FTail;
     property TotalLength: Cardinal read FTotalLength;
     procedure Append(const s: string);
-    function ToString: string;
+    function ToString(const aSeparator: string): string;
     destructor Destroy; override;
   end;
 
@@ -82,6 +83,17 @@ begin
   Inc(FTotalCount);
 end;
 
+procedure TStringBlock.MoveString(var p: PChar; const s: string);
+begin
+  if
+    s <> ''
+  then
+  begin
+    Move(PChar(s)^, p^, Length(s));
+    Inc(p, Length(s));
+  end;
+end;
+
 procedure TStringBlock.Append(const s: string);
 begin
   if
@@ -103,28 +115,30 @@ begin
   end;
 end;
 
-function TStringBlock.ToString: string;
+function TStringBlock.ToString(const aSeparator: string): string;
 var
-  current: PStringStorageBlock;
+  current, next: PStringStorageBlock;
   position: PChar;
-  s: string;
-  i: Byte;
+  i, n: Byte;
 begin
   current := Head;
-  WriteLN(FTotalCount);
-  SetLength(result, TotalLength);
+  SetLength(result, TotalLength + Length(aSeparator) * (FTotalCount - 1));
   position := PChar(result);
   while
     current <> nil
   do
   begin
-    for i := 0 to current^.Count - 1 do
+    next := current^.Next;
+    n := current^.Count - 1;
+    for i := 0 to n do
     begin
-      s := current^.Strings[i];
-      Move(PChar(s)^, position^, Length(s));
-      Inc(position, Length(s));
+      MoveString(position, current^.Strings[i]);
+      if
+        (i <> n) or (next <> nil)
+      then
+        MoveString(position, aSeparator);
     end;
-    current := current^.Next;
+    current := next;
   end;
   position^ := #0;
 end;
