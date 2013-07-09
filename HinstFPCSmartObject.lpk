@@ -26,8 +26,8 @@
         <UnitName Value="SmartObjectUnit"/>
       </Item1>
       <Item2>
-        <Filename Value="Src/SmartStringUnit.pas"/>
-        <UnitName Value="SmartStringUnit"/>
+        <Filename Value="Src/StringBlockUnit.pas"/>
+        <UnitName Value="StringBlockUnit"/>
       </Item2>
     </Files>
     <UsageOptions>
