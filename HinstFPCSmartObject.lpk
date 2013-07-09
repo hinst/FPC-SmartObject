@@ -20,21 +20,16 @@
         <CompilerPath Value="$(CompPath)"/>
       </Other>
     </CompilerOptions>
-    <Files Count="1">
+    <Files Count="2">
       <Item1>
-        <Filename Value="Src/HSmartObject.pas"/>
-        <UnitName Value="HSmartObject"/>
-      </Item1>
-    </Files>
-    <Type Value="RunAndDesignTime"/>
-    <RequiredPkgs Count="2">
-      <Item1>
-        <PackageName Value="fcl_stl"/>
+        <Filename Value="Src/SmartObjectUnit.pas"/>
+        <UnitName Value="SmartObjectUnit"/>
       </Item1>
       <Item2>
-        <PackageName Value="FCL"/>
+        <Filename Value="Src/SmartStringUnit.pas"/>
+        <UnitName Value="SmartStringUnit"/>
       </Item2>
-    </RequiredPkgs>
+    </Files>
     <UsageOptions>
       <UnitPath Value="$(PkgOutDir)"/>
     </UsageOptions>

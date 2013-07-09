@@ -1,16 +1,15 @@
 program Test_001;
 
 uses
-  HSmartObject;
+  SmartObjectUnit;
 
 var
   obj: TSmartObject;
 
 begin
-  WriteLN(GetGlobalSmartObjectSet.ToDebugText);
   obj := TSmartObject.Create;
-  WriteLN(GetGlobalSmartObjectSet.ToDebugText);
-  obj.Free;
-  WriteLN(GetGlobalSmartObjectSet.ToDebugText);
+  obj.Acquire;
+  WriteLN(obj.ReferenceCount);
+  obj.Release;
 end.
 

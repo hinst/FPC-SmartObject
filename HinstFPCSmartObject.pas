@@ -7,14 +7,8 @@ unit HinstFPCSmartObject;
 interface
 
 uses
-  HSmartObject, LazarusPackageIntf;
+  SmartObjectUnit, SmartStringUnit;
 
 implementation
 
-procedure Register;
-begin
-end;
-
-initialization
-  RegisterPackage('HinstFPCSmartObject', @Register);
 end.
