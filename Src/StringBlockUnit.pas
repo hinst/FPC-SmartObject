@@ -37,7 +37,7 @@ type
     property Head: PStringStorageBlock read FHead;
     property Tail: PStringStorageBlock read FTail;
     property TotalLength: Cardinal read FTotalLength;
-    procedure Append(const s: string);
+    procedure Add(const s: string);
     function ToString(const aSeparator: string): string;
     destructor Destroy; override;
   end;
@@ -94,7 +94,7 @@ begin
   end;
 end;
 
-procedure TStringBlock.Append(const s: string);
+procedure TStringBlock.Add(const s: string);
 begin
   if
     nil = Tail

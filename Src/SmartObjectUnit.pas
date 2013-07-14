@@ -18,12 +18,13 @@ type
     FReferenceCount: Integer;
     FReferenceCountLocker: TCriticalSection;
     FName: string;
+    procedure AutoCreateReferenceCountLocker;
     function GetReferenceCount: Integer;
   public
     property ReferenceCount: Integer read GetReferenceCount;
     property Name: string read FName write FName;
       // constructor
-    constructor Create;
+    constructor Create; virtual;
     procedure ChangeReferenceCount(const aDelta: Integer);
     procedure Acquire;
     procedure Release;
@@ -36,8 +37,17 @@ implementation
 
 { TSmartObject }
 
+procedure TSmartObject.AutoCreateReferenceCountLocker;
+begin
+  if
+    nil = FReferenceCountLocker
+  then
+    FReferenceCountLocker := TCriticalSection.Create;
+end;
+
 function TSmartObject.GetReferenceCount: Integer;
 begin
+  AutoCreateReferenceCountLocker;
   FReferenceCountLocker.Enter;
   result := FReferenceCount;
   FReferenceCountLocker.Leave;
@@ -47,12 +57,13 @@ constructor TSmartObject.Create;
 begin
   inherited Create;
   FReferenceCount := 0;
-  FReferenceCountLocker := TCriticalSection.Create;
+  FReferenceCountLocker := nil;
   FName := '';
 end;
 
 procedure TSmartObject.ChangeReferenceCount(const aDelta: Integer);
 begin
+  AutoCreateReferenceCountLocker;
   FReferenceCountLocker.Enter;
   FReferenceCount += aDelta;
   FReferenceCountLocker.Leave;
@@ -65,9 +76,14 @@ end;
 
 procedure TSmartObject.Release;
 begin
-  ChangeReferenceCount(-1);
-  if ReferenceCount <= 0 then
-    Free;
+  if
+    self <> nil
+  then
+  begin
+    ChangeReferenceCount(-1);
+    if ReferenceCount <= 0 then
+      Free;
+  end;
 end;
 
 function TSmartObject.ToDebugString: string;

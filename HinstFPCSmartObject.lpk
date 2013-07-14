@@ -20,7 +20,7 @@
         <CompilerPath Value="$(CompPath)"/>
       </Other>
     </CompilerOptions>
-    <Files Count="2">
+    <Files Count="3">
       <Item1>
         <Filename Value="Src/SmartObjectUnit.pas"/>
         <UnitName Value="SmartObjectUnit"/>
@@ -29,6 +29,10 @@
         <Filename Value="Src/StringBlockUnit.pas"/>
         <UnitName Value="StringBlockUnit"/>
       </Item2>
+      <Item3>
+        <Filename Value="Src/SmartPointerHashUnit.pas"/>
+        <UnitName Value="SmartPointerHashUnit"/>
+      </Item3>
     </Files>
     <UsageOptions>
       <UnitPath Value="$(PkgOutDir)"/>

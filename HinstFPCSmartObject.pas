@@ -7,7 +7,7 @@ unit HinstFPCSmartObject;
 interface
 
 uses
-  SmartObjectUnit, StringBlockUnit;
+  SmartObjectUnit, StringBlockUnit, SmartPointerHashUnit;
 
 implementation
 
